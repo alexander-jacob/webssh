@@ -1,0 +1,9 @@
+version: '3.5'
+
+services:
+  webssh:
+    image: ${IMG}
+    environment:
+      - PYTHONPATH=/opt/project
+      - TERM
+    restart: always

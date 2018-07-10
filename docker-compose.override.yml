@@ -1,0 +1,12 @@
+version: '3.5'
+
+services:
+  webssh:
+    build: .
+    user: ${COMPOSE_UID}:${COMPOSE_GID}
+    command: wssh --logging=debug --address=0.0.0.0 --port=8443
+    volumes:
+      - ./:/opt/project
+    ports:
+      - 127.0.0.1:8443:8443
+    stop_signal: SIGINT
