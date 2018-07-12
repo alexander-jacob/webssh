@@ -18,4 +18,4 @@ USER webssh
 
 EXPOSE 8443
 
-CMD ['wssh', '--logging=info', '--address=0.0.0.0', '--port=8443']
+CMD ["wssh", "--logging=info", "--address=0.0.0.0", "--port=8443"]
