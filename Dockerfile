@@ -2,7 +2,7 @@ FROM python:3.6-stretch
 
 RUN pip install -U pip setuptools
 
-RUN useradd --uid 1000 --gid 1000 --base-dir /home --create-home --home-dir /home/webssh webssh
+RUN useradd --uid 1000 --base-dir /home --create-home --home-dir /home/webssh webssh
 
 COPY requirements.txt /tmp/
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
