@@ -36,7 +36,9 @@ def get_app_settings(options):
         static_path=os.path.join(base_dir, 'static'),
         cookie_secret=uuid.uuid4().hex,
         xsrf_cookies=(not options.debug),
-        debug=options.debug
+        debug=options.debug,
+        webssh_secret_key=os.environ['WEBSSH_SECRET_KEY'],
+        webssh_allow_dialog = os.environ.get('WEBSSH_ALLOW_DIALOG') == 'true'
     )
     return settings
 

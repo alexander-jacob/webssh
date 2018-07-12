@@ -1,13 +1,17 @@
+import base64
 import io
 import json
 import logging
 import socket
 import struct
 import threading
+import time
 import traceback
 import weakref
 import paramiko
 import tornado.web
+from Crypto.Cipher import AES
+from Crypto.Util import Counter
 
 from tornado.ioloop import IOLoop
 from tornado.util import basestring_type
@@ -115,12 +119,34 @@ class IndexHandler(MixinHandler, tornado.web.RequestHandler):
         return value
 
     def get_args(self):
-        hostname = self.get_value('hostname')
-        port = self.get_port()
-        username = self.get_value('username')
-        password = self.get_argument('password')
-        privatekey = self.get_privatekey()
-        pkey = self.get_pkey_obj(privatekey, password) if privatekey else None
+
+        config = self.get_argument('config', default=None)
+        if config:
+            # decrypt info
+            webssh_secret_key = self.application.settings['webssh_secret_key']
+            decoded = base64.b64decode(config)
+            counter = Counter.new(128)
+            decryption_suite = AES.new(webssh_secret_key, AES.MODE_CTR, 'This is an IV456', counter=counter)
+            decrypted = decryption_suite.decrypt(decoded)
+            data = json.loads(decrypted)
+
+            # todo: check signature
+
+            # and set
+            hostname = data.get('host')
+            port = data.get('port')
+            username = data.get('username')
+            password = data.get('password', '')
+            privatekey = data.get('privatekey')
+            pkey = self.get_pkey_obj(privatekey, password) if privatekey else None
+        else:
+            hostname = self.get_value('hostname')
+            port = self.get_port()
+            username = self.get_value('username')
+            password = self.get_argument('password')
+            privatekey = self.get_privatekey()
+            pkey = self.get_pkey_obj(privatekey, password) if privatekey else None
+
         args = (hostname, port, username, password, pkey)
         logging.debug(args)
         return args
@@ -176,11 +202,27 @@ class IndexHandler(MixinHandler, tornado.web.RequestHandler):
         else:
             future.set_result(worker)
 
+    @property
+    def index_base_kwargs(self):
+        return {
+            'webssh_config':None,
+            'cb': str(time.time()),
+            'webssh_allow_dialog': self.application.settings['webssh_allow_dialog']
+        }
+
     def get(self):
-        self.render('index.html')
+        self.render('index.html', **self.index_base_kwargs)
 
     @tornado.gen.coroutine
     def post(self):
+
+        # check if post is coming from control with webssh config
+        webssh_config = self.get_argument('webssh_config', default=None)
+        if webssh_config:
+            kwargs = self.index_base_kwargs
+            kwargs['webssh_config'] = webssh_config
+            return self.render('index.html', **kwargs)
+
         worker_id = None
         status = None
         encoding = None

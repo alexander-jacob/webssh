@@ -66,3 +66,5 @@ known_hosts
 
 # pycharm
 .idea
+
+.env

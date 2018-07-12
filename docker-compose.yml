@@ -2,8 +2,10 @@ version: '3.5'
 
 services:
   webssh:
-    image: ${IMG}
+    image: alexanderjacob/webssh
     environment:
       - PYTHONPATH=/opt/project
+      - WEBSSH_SECRET_KEY
+      - WEBSSH_ALLOW_DIALOG
       - TERM
     restart: always

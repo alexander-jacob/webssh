@@ -148,6 +148,25 @@ jQuery(function($){
 
   });
 
+  // submit config form if present
+  $('form#config').submit(function(event) {
+      event.preventDefault();
+
+      var form = $(this),
+          url = form.attr('action'),
+          data = new FormData(this);
+
+      $.ajax({
+          url: url,
+          type: 'post',
+          data: data,
+          success: callback,
+          cache: false,
+          contentType: false,
+          processData: false
+      });
+  });
+  $('form#config').submit();
 
   $(window).resize(function(){
     if (wssh.term && wssh.sock) {
