@@ -207,7 +207,8 @@ class IndexHandler(MixinHandler, tornado.web.RequestHandler):
         return {
             'webssh_config':None,
             'cb': str(time.time()),
-            'webssh_allow_dialog': self.application.settings['webssh_allow_dialog']
+            'webssh_allow_dialog': self.application.settings['webssh_allow_dialog'],
+            'title': 'WebSSH',
         }
 
     def get(self):
@@ -221,6 +222,7 @@ class IndexHandler(MixinHandler, tornado.web.RequestHandler):
         if webssh_config:
             kwargs = self.index_base_kwargs
             kwargs['webssh_config'] = webssh_config
+            kwargs['title'] = self.get_argument('title', default='WebSSH')
             return self.render('index.html', **kwargs)
 
         worker_id = None
