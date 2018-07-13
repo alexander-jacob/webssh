@@ -75,10 +75,29 @@ jQuery(function($){
       sock.send(JSON.stringify({'data': data}));
     });
 
+    // keep alive
+    var timerID = 0;
+    function keepAlive() {
+        var timeout = 1000;
+        if (sock.readyState == sock.OPEN) {
+            console.log('keep-alive');
+            sock.send('');
+        } else {
+            console.log('keep-alive: not open');
+        }
+        timerId = setTimeout(keepAlive, timeout);
+    }
+    function cancelKeepAlive() {
+        if (timerId) {
+            clearTimeout(timerId);
+        }
+    }
+
     sock.onopen = function() {
       $('.container').hide();
       term.open(terminal, true);
       term.toggleFullscreen(true);
+      keepAlive();
     };
 
     sock.onmessage = function(msg) {
